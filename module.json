@@ -18,35 +18,174 @@
 
 	"parameters":
 	{
-		"Pad Colors":
+		"Encoder Modes":
 		{
 			"type":"Container",
 			"collapsed":true,
 
-			"Pad 1":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 2":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 3":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 4":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 5":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 6":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 7":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 8":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 9":  { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 10": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 11": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 12": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 13": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 14": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 15": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} },
-			"Pad 16": { "type":"Enum", "options": {"Black":[0,0], "Red":[3,0], "Green":[0,3], "Yellow":[3,3], "Lime":[1,3], "Orange":[3,1]} }
+			"Encoder Top 1 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3},},
+			"Encoder Top 2 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Top 3 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Top 4 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Top 5 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Top 6 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Top 7 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Top 8 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+
+			"Encoder Side 1 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 2 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 3 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 4 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 5 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 6 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 7 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}},
+			"Encoder Side 8 Mode": { "type":"Enum", "options":{"Off":0, "Single":1,"Volume":2,"Pan":3}}
+		},
+		
+		"Pad LED":
+		{
+			"type":"Container",
+			"collapsed":true,
+
+			"Mode":
+			{
+				"type":"Container",
+				"collapsed":true,
+
+				"Pad 1.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 1.9": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+
+				"Pad 2.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 2.9": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+
+				"Pad 3.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 3.9": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+
+				"Pad 4.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 4.9": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+
+				"Pad 5.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 5.9": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+
+				"Pad 6.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 6.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+
+				"Pad 7.1": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.2": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.3": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.4": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.5": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.6": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.7": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.8": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+				"Pad 7.9": {"type":"Enum", "options":{"Off":0, "On":1, "Blinking":2}},
+			},
+
+			"Color":
+			{
+				"type":"Container",
+				"collapsed":true,
+
+				"Pad 1.1": { "type": "Color"},
+				"Pad 1.2": { "type": "Color"},
+				"Pad 1.3": { "type": "Color"},
+				"Pad 1.4": { "type": "Color"},
+				"Pad 1.5": { "type": "Color"},
+				"Pad 1.6": { "type": "Color"},
+				"Pad 1.7": { "type": "Color"},
+				"Pad 1.8": { "type": "Color"},
+
+				"Pad 2.1": { "type": "Color"},
+				"Pad 2.2": { "type": "Color"},
+				"Pad 2.3": { "type": "Color"},
+				"Pad 2.4": { "type": "Color"},
+				"Pad 2.5": { "type": "Color"},
+				"Pad 2.6": { "type": "Color"},
+				"Pad 2.7": { "type": "Color"},
+				"Pad 2.8": { "type": "Color"},
+
+				"Pad 3.1": { "type": "Color"},
+				"Pad 3.2": { "type": "Color"},
+				"Pad 3.3": { "type": "Color"},
+				"Pad 3.4": { "type": "Color"},
+				"Pad 3.5": { "type": "Color"},
+				"Pad 3.6": { "type": "Color"},
+				"Pad 3.7": { "type": "Color"},
+				"Pad 3.8": { "type": "Color"},
+
+				"Pad 4.1": { "type": "Color"},
+				"Pad 4.2": { "type": "Color"},
+				"Pad 4.3": { "type": "Color"},
+				"Pad 4.4": { "type": "Color"},
+				"Pad 4.5": { "type": "Color"},
+				"Pad 4.6": { "type": "Color"},
+				"Pad 4.7": { "type": "Color"},
+				"Pad 4.8": { "type": "Color"},
+
+				"Pad 5.1": { "type": "Color"},
+				"Pad 5.2": { "type": "Color"},
+				"Pad 5.3": { "type": "Color"},
+				"Pad 5.4": { "type": "Color"},
+				"Pad 5.5": { "type": "Color"},
+				"Pad 5.6": { "type": "Color"},
+				"Pad 5.7": { "type": "Color"},
+				"Pad 5.8": { "type": "Color"}
+			}
+		},
+		
+		"Button LED":
+		{
+			"type":"Container",
+			"collapsed":true,
 		}
 	},
 
 	"defaults":
 	{		
 		"devices":[
-			"MIDIIN2 (APC40 mkII)",
-			"MIDIOUT2 (APC40 mkII)"
+			"APC40 mkII",
+			"APC40 mkII"
 		],
 		"autoAdd":false
 	},
@@ -54,7 +193,11 @@
 	"hideDefaultParameters":
 	[
 		"autoAdd",
-		"autoFeedback"
+		"autoFeedback",
+		"useHierarchy",
+		"octaveShift",
+		"usePitchForNoteNames",
+		"pass-through"
 	],
 
 
@@ -65,32 +208,227 @@
 
 	"values":
 	{
+		"Faders":
+		{
+			"type":"Container",
+			"collapsed":"true",
+
+			"Fader 1": { "type":"Float", "min":0,"max":1},
+			"Fader 2": { "type":"Float", "min":0,"max":1},
+			"Fader 3": { "type":"Float", "min":0,"max":1},
+			"Fader 4": { "type":"Float", "min":0,"max":1},
+			"Fader 5": { "type":"Float", "min":0,"max":1},
+			"Fader 6": { "type":"Float", "min":0,"max":1},
+			"Fader 7": { "type":"Float", "min":0,"max":1},
+			"Fader 8": { "type":"Float", "min":0,"max":1},
+			"Fader 9": { "type":"Float", "min":0,"max":1},
+			"Fader AB": { "type":"Float", "min":0,"max":1}
+		},
+
+		"Encoders":
+		{
+			"type":"Container",
+			"collapsed":"true",
+
+			"Encoder Top 1": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 2": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 3": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 4": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 5": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 6": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 7": { "type":"Float", "min":0,"max":1},
+			"Encoder Top 8": { "type":"Float", "min":0,"max":1},
+
+			"Encoder Side 1": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 2": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 3": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 4": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 5": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 6": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 7": { "type":"Float", "min":0,"max":1},
+			"Encoder Side 8": { "type":"Float", "min":0,"max":1},
+
+			"Encoder Cue Level": { "type":"Float", "min":-63,"max":63},
+			"Encoder Tempo": { "type":"Float", "min":-63,"max":63}
+		},
 		"Pads":
 		{
 			"type":"Container",
-			"Pad 1":   { "type":"Float", "min":0,"max":1},
-			"Pad 2":   { "type":"Float", "min":0,"max":1},
-			"Pad 3":   { "type":"Float", "min":0,"max":1},
-			"Pad 4":   { "type":"Float", "min":0,"max":1},
-			"Pad 5":   { "type":"Float", "min":0,"max":1},
-			"Pad 6":   { "type":"Float", "min":0,"max":1},
-			"Pad 7":   { "type":"Float", "min":0,"max":1},
-			"Pad 8":   { "type":"Float", "min":0,"max":1},
-			"Pad 9":   { "type":"Float", "min":0,"max":1},
-			"Pad 10":  { "type":"Float", "min":0,"max":1},
-			"Pad 11":  { "type":"Float", "min":0,"max":1},
-			"Pad 12":  { "type":"Float", "min":0,"max":1},
-			"Pad 13":  { "type":"Float", "min":0,"max":1},
-			"Pad 14":  { "type":"Float", "min":0,"max":1},
-			"Pad 15":  { "type":"Float", "min":0,"max":1},
-			"Pad 16":  { "type":"Float", "min":0,"max":1}
+			"collapsed":"true",
+
+			"Main":
+			{
+				"type":"Container",
+				"collapsed":"true",
+
+				"Pad 1.1": {"type":"Boolean"},
+				"Pad 1.2": {"type":"Boolean"},
+				"Pad 1.3": {"type":"Boolean"},
+				"Pad 1.4": {"type":"Boolean"},
+				"Pad 1.5": {"type":"Boolean"},
+				"Pad 1.6": {"type":"Boolean"},
+				"Pad 1.7": {"type":"Boolean"},
+				"Pad 1.8": {"type":"Boolean"},
+				"Pad 1.9": {"type":"Boolean"},
+
+				"Pad 2.1": {"type":"Boolean"},
+				"Pad 2.2": {"type":"Boolean"},
+				"Pad 2.3": {"type":"Boolean"},
+				"Pad 2.4": {"type":"Boolean"},
+				"Pad 2.5": {"type":"Boolean"},
+				"Pad 2.6": {"type":"Boolean"},
+				"Pad 2.7": {"type":"Boolean"},
+				"Pad 2.8": {"type":"Boolean"},
+				"Pad 2.9": {"type":"Boolean"},
+
+				"Pad 3.1": {"type":"Boolean"},
+				"Pad 3.2": {"type":"Boolean"},
+				"Pad 3.3": {"type":"Boolean"},
+				"Pad 3.4": {"type":"Boolean"},
+				"Pad 3.5": {"type":"Boolean"},
+				"Pad 3.6": {"type":"Boolean"},
+				"Pad 3.7": {"type":"Boolean"},
+				"Pad 3.8": {"type":"Boolean"},
+				"Pad 3.9": {"type":"Boolean"},
+
+				"Pad 4.1": {"type":"Boolean"},
+				"Pad 4.2": {"type":"Boolean"},
+				"Pad 4.3": {"type":"Boolean"},
+				"Pad 4.4": {"type":"Boolean"},
+				"Pad 4.5": {"type":"Boolean"},
+				"Pad 4.6": {"type":"Boolean"},
+				"Pad 4.7": {"type":"Boolean"},
+				"Pad 4.8": {"type":"Boolean"},
+				"Pad 4.9": {"type":"Boolean"},
+
+				"Pad 5.1": {"type":"Boolean"},
+				"Pad 5.2": {"type":"Boolean"},
+				"Pad 5.3": {"type":"Boolean"},
+				"Pad 5.4": {"type":"Boolean"},
+				"Pad 5.5": {"type":"Boolean"},
+				"Pad 5.6": {"type":"Boolean"},
+				"Pad 5.7": {"type":"Boolean"},
+				"Pad 5.8": {"type":"Boolean"},
+				"Pad 5.9": {"type":"Boolean"},
+
+				"Pad 6.1": {"type":"Boolean"},
+				"Pad 6.2": {"type":"Boolean"},
+				"Pad 6.3": {"type":"Boolean"},
+				"Pad 6.4": {"type":"Boolean"},
+				"Pad 6.5": {"type":"Boolean"},
+				"Pad 6.6": {"type":"Boolean"},
+				"Pad 6.7": {"type":"Boolean"},
+				"Pad 6.8": {"type":"Boolean"},
+				"Pad 6.9": {"type":"Boolean"},
+
+				"Pad 7.1": {"type":"Boolean"},
+				"Pad 7.2": {"type":"Boolean"},
+				"Pad 7.3": {"type":"Boolean"},
+				"Pad 7.4": {"type":"Boolean"},
+				"Pad 7.5": {"type":"Boolean"},
+				"Pad 7.6": {"type":"Boolean"},
+				"Pad 7.7": {"type":"Boolean"},
+				"Pad 7.8": {"type":"Boolean"},
+				"Pad 7.9": {"type":"Boolean"},
+
+			},
+
+			"Fader Buttons":
+			{
+				"type":"Container",
+				"collapsed":"true",
+				
+				"Fader 1 Select": {"type":"Boolean"},
+				"Fader 1 AB": {"type":"Boolean"},
+				"Fader 1 Solo": {"type":"Boolean"},
+				"Fader 1 Record": {"type":"Boolean"},
+
+				"Fader 2 Select": {"type":"Boolean"},
+				"Fader 2 AB": {"type":"Boolean"},
+				"Fader 2 Solo": {"type":"Boolean"},
+				"Fader 2 Record": {"type":"Boolean"},
+
+				"Fader 3 Select": {"type":"Boolean"},
+				"Fader 3 AB": {"type":"Boolean"},
+				"Fader 3 Solo": {"type":"Boolean"},
+				"Fader 3 Record": {"type":"Boolean"},
+
+				"Fader 4 Select": {"type":"Boolean"},
+				"Fader 4 AB": {"type":"Boolean"},
+				"Fader 4 Solo": {"type":"Boolean"},
+				"Fader 4 Record": {"type":"Boolean"},
+
+				"Fader 5 Select": {"type":"Boolean"},
+				"Fader 5 AB": {"type":"Boolean"},
+				"Fader 5 Solo": {"type":"Boolean"},
+				"Fader 5 Record": {"type":"Boolean"},
+
+				"Fader 6 Select": {"type":"Boolean"},
+				"Fader 6 AB": {"type":"Boolean"},
+				"Fader 6 Solo": {"type":"Boolean"},
+				"Fader 6 Record": {"type":"Boolean"},
+
+				"Fader 7 Select": {"type":"Boolean"},
+				"Fader 7 AB": {"type":"Boolean"},
+				"Fader 7 Solo": {"type":"Boolean"},
+				"Fader 7 Record": {"type":"Boolean"},
+
+				"Fader 8 Select": {"type":"Boolean"},
+				"Fader 8 AB": {"type":"Boolean"},
+				"Fader 8 Solo": {"type":"Boolean"},
+				"Fader 8 Record": {"type":"Boolean"}
+			}
 		},
-		"Knobs":
+		"Buttons":
 		{
 			"type":"Container",
-			"Knob Top 1":   { "type":"Float", "min":0,"max":1},
-			"Knob Side 1.1":   { "type":"Float", "min":0,"max":1},
-			"Knob Side 2.1":   { "type":"Float", "min":0,"max":1}
+			"collapsed":"true",
+			"Top":
+			{
+				"type":"Container",
+				"collapsed":"true",
+			
+				"Pan": {"type":"Boolean"},
+				"Sends": {"type":"Boolean"},
+				"User": {"type":"Boolean"},
+
+				"Play": {"type":"Boolean"},
+				"Record": {"type":"Boolean"},
+				"Session": {"type":"Boolean"},
+
+				"Metronome": {"type":"Boolean"},
+				"Tap Tempo": {"type":"Boolean"},
+				"Nudge -": {"type":"Boolean"},
+				"Nudge +": {"type":"Boolean"},
+			},
+
+			"Encoders":
+			{
+				"type":"Container",
+				"collapsed":"true",
+
+				"1 Device Prev": {"type":"Boolean"},
+				"2 Device Next": {"type":"Boolean"},
+				"3 Bank Prev": {"type":"Boolean"},
+				"4 Bank Next": {"type":"Boolean"},
+				"5 Dev. On/Off": {"type":"Boolean"},
+				"6 Dev. Lock": {"type":"Boolean"},
+				"7 Clip/Dev. View": {"type":"Boolean"},
+				"8 Detail View": {"type":"Boolean"},
+				"Shift": {"type":"Boolean"},
+				"Bank": {"type":"Boolean"}
+			},
+
+			"Bank Select":
+			{
+				"type":"Container",
+				"collapsed":"true",
+
+				"Up": {"type":"Boolean"},
+				"Down": {"type":"Boolean"},
+				"Left": {"type":"Boolean"},
+				"Right": {"type":"Boolean"}
+			}
 		}
 	},
 
@@ -128,6 +466,12 @@
 		{
 			"menu":"",
 			"callback":"resetColors"
+		},
+
+		"Set Midi Mode":
+		{
+			"menu":"",
+			"callback":"setMidiMode"
 		}
 	}
 }
