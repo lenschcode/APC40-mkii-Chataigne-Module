@@ -12,13 +12,13 @@ var noteNotes = {
 	pads:
 	{
 		main: [
-			[[1,32], [1,33], [1,34], [1,35], [1,36], [1,37], [1,38], [1,39]],
-			[[1,24], [1,25], [1,26], [1,27], [1,28], [1,29], [1,30], [1,31]],
-			[[1,16], [1,17], [1,18], [1,19], [1,20], [1,21], [1,22], [1,23]],
-			[[1, 8], [1, 9], [1,10], [1,11], [1,12], [1,13], [1,14], [1,15]],
-			[[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7]],
-			[[1,52], [2,52], [3,52], [4,52], [5,52], [6,52], [7,52], [8,52]],
-			[[1,51], [2,51], [3,51], [4,51], [5,51], [6,51], [7,51], [8,51]]
+			[[1,32], [1,33], [1,34], [1,35], [1,36], [1,37], [1,38], [1,39], [1,82]],
+			[[1,24], [1,25], [1,26], [1,27], [1,28], [1,29], [1,30], [1,31], [1,83]],
+			[[1,16], [1,17], [1,18], [1,19], [1,20], [1,21], [1,22], [1,23], [1,84]],
+			[[1, 8], [1, 9], [1,10], [1,11], [1,12], [1,13], [1,14], [1,15], [1,85]],
+			[[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1,86]],
+			[[1,52], [2,52], [3,52], [4,52], [5,52], [6,52], [7,52], [8,52], [1,81]],
+			[[1,51], [2,51], [3,51], [4,51], [5,51], [6,51], [7,51], [8,51], [1,80]]
 		],
 		faders: [
 			[[1,50], [1,66], [1,49], [1,48]],
@@ -58,41 +58,6 @@ var pulsingRate = 1.0;
 var previousStep = -1;
 
 
-//Functions
-// function findValuePosition(value, obj) {
-//   for (const prop in obj) {
-//     if (Array.isArray(obj[prop])) {
-//       for (let i = 0; i < obj[prop].length; i++) {
-//         for (let j = 0; j < obj[prop][i].length; j++) {
-//           if (JSON.stringify(obj[prop][i][j]) === JSON.stringify(value)) {
-//             return {
-//               property: prop,
-//               arrayIndex: i,
-//               elementIndex: j
-//             };
-//           }
-//         }
-//       }
-//     } else if (typeof obj[prop] === 'object') {
-//       const result = findValuePosition(value, obj[prop]);
-//       if (result) {
-//         return result;
-//       }
-//     }
-//   }
-//   return null;
-// }
-
-// const valueToFind = [1, 50];
-// const position = findValuePosition(valueToFind, notes);
-
-// if (position) {
-//   console.log(`Value found in ${position.property} at index [${position.arrayIndex}][${position.elementIndex}]`);
-// } else {
-//   console.log('Value not found in the object.');
-// }
-
-
 // User Functions 
 function setMidiMode()
 {
@@ -101,6 +66,7 @@ function setMidiMode()
 	script.log("Set Midi Mode with Sysex Message");
 }
 
+// Functions
 
 function setLed(led, red, green, flashRed, flashGreen)
 {
@@ -134,12 +100,11 @@ function resetColors()
 // Init
 function init()
 {
-	// Generate Note to Object Matrix
+	// Generate CC to Object Matrix
 	// Faders
 	for (var i = 0; i <= 9; i++)
 	{
 		var note = ccNotes.faders[i];
-		// let name = `Fader ${i}`;
 		var name = "fader" + (i+1) + "";
 		if (i == 9)
 		{
@@ -164,33 +129,37 @@ function init()
 	// Special Encoders
 	ccValueObj[ccNotes.encoders.cue[0]][ccNotes.encoders.cue[1]] = local.values.encoders.getChild("encoderCueLevel");
 	ccValueObj[ccNotes.encoders.tempo[0]][ccNotes.encoders.tempo[1]] = local.values.encoders.getChild("encoderTempo");
-}
 
-// Events
 
-function moduleParameterChanged(param)
-{
-	if(param.getParent().name == "padColors")
+	// Note to Object Matrix
+	// Main Pads
+	for (var row = 0; row < 7; row++)
 	{
-		var id = parseInt(param.name.substring(3));
-		var val = param.getData();
-		setLed(id, val[0],val[1], 0, 0);
+		for(var column = 0; column < 9; column++)
+		{
+			var note = noteNotes.pads.main[row][column];
+			var name = "pad" + (row+1) + (column+1) + "";
+
+			noteValueObj[note[0]][note[1]] = local.values.pads.main.getChild(name);
+		}
+	}
+
+	// Fader Pads
+	var faderButtonNames = ["Select","Ab","Solo","Record"];
+	for (var fader = 0; fader < 8; fader++)
+	{
+		for (var button = 0; button < 4; button++)
+		{
+			var note = noteNotes.pads.faders[fader][button];
+			var name = "fader" + (fader + 1) + faderButtonNames[button];
+
+			noteValueObj[note[0]][note[1]] = local.values.pads.faderButtons.getChild(name);
+		}
 	}
 }
 
-
-function noteOnEvent(channel, pitch, velocity)
-{
-	script.log("Note on received "+channel+", "+pitch+", "+velocity);
-}
-
-
-function noteOffEvent(channel, pitch, velocity)
-{
-	script.log("Note off received "+channel+", "+pitch+", "+velocity);
-}
-
-function ccEvent(channel, number, value)
+// Handle Midi Inputs
+function handleCC(channel, number, value)
 {
 	var obj = ccValueObj[channel][number];
 	if (!!obj)
@@ -208,10 +177,51 @@ function ccEvent(channel, number, value)
 	}
 	else
 	{
+		script.log("No Mapping for this Midi CC found");
+	}
+}
+
+function handleNote(channel, note, velocity)
+{
+	var obj = noteValueObj[channel][note];
+	if (!!obj)
+	{
+		obj.set((velocity == 127));
+	}
+	else
+	{
 		script.log("No Mapping for this Midi Note found");
 	}
 
-	script.log("ControlChange received "+channel+", "+number+", "+value);
+}
+
+// Events
+
+function moduleParameterChanged(param)
+{
+	if(param.getParent().name == "padColors")
+	{
+		var id = parseInt(param.name.substring(3));
+		var val = param.getData();
+		setLed(id, val[0],val[1], 0, 0);
+	}
+}
+
+
+function noteOnEvent(channel, note, velocity)
+{
+	handleNote(channel, note, velocity);
+}
+
+
+function noteOffEvent(channel, note , velocity)
+{
+	handleNote(channel, note, velocity);
+}
+
+function ccEvent(channel, number, value)
+{
+	handleCC(channel, number, value);
 }
 
 function sysExEvent(data)
