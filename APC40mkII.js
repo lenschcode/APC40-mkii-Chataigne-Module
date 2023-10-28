@@ -33,7 +33,40 @@ var noteNotes = {
 	},
 	buttons:
 	{
+		top: {
+			"pan": [1, 87],
+			"sends": [1,88],
+			"user": [1,89],
 
+			"play": [1, 91],
+			"record": [1, 93],
+			"session": [1, 102],
+
+			"metronome": [1, 90],
+			"tapTempo": [1, 99],
+			"nudgeMinus": [1, 100],
+			"nudgePlus": [1, 101],
+		},
+
+		encoders: {
+			"1DevicePrev": [1,58],
+			"2DeviceNext": [1,59],
+			"3BankPrev": [1,60],
+			"4BankNext": [1,61],
+			"5DevOnOff": [1,62],
+			"6DevLock": [1,63],
+			"7ClipDevView": [1,64],
+			"8DetailView": [1,65],
+
+			"shift": [1,98],
+			"bank": [1,103]
+		},
+		bankSelect: {
+			up: [1,94],
+			down: [1,95],
+			left: [1,97],
+			right: [1,96]
+		}
 	},
 };
 
@@ -101,7 +134,7 @@ function resetColors()
 function init()
 {
 	// Generate CC to Object Matrix
-	// Faders
+	// ------- Faders -------
 	for (var i = 0; i <= 9; i++)
 	{
 		var note = ccNotes.faders[i];
@@ -114,14 +147,13 @@ function init()
 		ccValueObj[note[0]][note[1]] = local.values.faders.getChild(name);
 	}
 
-	// Encoders
+	// ------- Encoders --------
 	for (var i = 0; i < 8; i++)
 	{
 		var noteTop = ccNotes.encoders.top[i];
 		var noteSide = ccNotes.encoders.side[i];
 		var nameTop = "encoderTop" + (i+1) + "";
 		var nameSide = "encoderSide" + (i+1) + "";
-		script.log("Note: " + noteTop[0] + " " + noteTop[1] + " Name: " + nameTop);
 		
 		ccValueObj[noteTop[0]][noteTop[1]] = local.values.encoders.getChild(nameTop);
 		ccValueObj[noteSide[0]][noteSide[1]] = local.values.encoders.getChild(nameSide);
@@ -132,7 +164,8 @@ function init()
 
 
 	// Note to Object Matrix
-	// Main Pads
+	// ------- Pads ------
+	// -- Main Pads --
 	for (var row = 0; row < 7; row++)
 	{
 		for(var column = 0; column < 9; column++)
@@ -144,7 +177,7 @@ function init()
 		}
 	}
 
-	// Fader Pads
+	// -- Fader Pads --
 	var faderButtonNames = ["Select","Ab","Solo","Record"];
 	for (var fader = 0; fader < 8; fader++)
 	{
@@ -156,7 +189,55 @@ function init()
 			noteValueObj[note[0]][note[1]] = local.values.pads.faderButtons.getChild(name);
 		}
 	}
+
+	// ------- Buttons --------
+	// because there doesn't seem to be a way to iterate over object or getting the keys here a manual:
+	var groups = ["top","encoders","bankSelect"];
+	var keys = [
+		["pan","sends","user","play","record","session","metronome","tapTempo","nudgePlus","nudgeMinus"],
+		["1DevicePrev", "2DeviceNext", "3BankPrev", "4BankNext", "5DevOnOff", "6DevLock", "7ClipDevView", "8DetailView", "shift", "bank"],
+		["up","down","left","right"]
+	];
+
+	for (var i = 0; i < groups.length; i++)
+	{
+		var group = groups[i];
+		for (var k = 0; k < keys[i].length; k++)
+		{
+			var key = keys[i][k];
+			var note = noteNotes.buttons[group][key];
+
+			script.log(note[0] + note[1] + group + key);
+			noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(group).getChild(key);
+			// noteValueObj[note[0]][note[1]] = local.values.buttons[group][key];
+		}
+	}
 }
+/*
+	for (var i = 0; i < noteNotes.buttons.length; i++)
+	{
+		let groupKeys = noteNotes.buttons.keys();
+		let groupKey = groupKeys[i];
+		for (var j = 0; j < noteNotes.buttons[groupKey].length; j++);
+		{
+			let key = noteNotes.buttons[groupKey].keys()[j];
+			let note = noteNotes.buttons[key];
+			noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(groupKey).getChild(key);
+		}
+	}
+
+	for (let group in noteNotes.buttons)
+	{
+		for (let key in noteNotes.buttons[group])	
+		{
+			if (noteNotes.buttons.hasOwnProperty(key))
+			{
+				let note = noteNotes.buttons[key]
+				noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(group).getChild(name);
+			}
+		}
+	}
+*/
 
 // Handle Midi Inputs
 function handleCC(channel, number, value)
