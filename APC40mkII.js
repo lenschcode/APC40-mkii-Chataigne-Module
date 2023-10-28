@@ -94,9 +94,21 @@ var previousStep = -1;
 // User Functions 
 function setMidiMode()
 {
-	// local.sendSysex(0x00, 0x20, 0x29, 0x02, 0x0D, 0x0E, 0x01);
 	local.sendSysex(0x47, 0x7F, 0x29, 0x60, 0x00, 0x04, 0x41, 0x08, 0x02, 0x01);
 	script.log("Set Midi Mode with Sysex Message");
+}
+
+// Resent Values
+function resendMidi()
+{
+	// Encoders
+	for(var i = 0; i < 8; i++)
+	{
+		setEncoder(true, (i+1), local.values.encoders.getChild("encoderTop"+(i+1)).get());
+		setEncoder(false, (i+1), local.values.encoders.getChild("encoderSide"+(i+1)).get());
+		setEncoderMode(true, (i+1), local.parameters.encoderModes.getChild("encoderTop"+(i+1)+"Mode").get());
+		setEncoderMode(false, (i+1), local.parameters.encoderModes.getChild("encoderSide"+(i+1)+"Mode").get());
+	}
 }
 
 // Functions
@@ -106,9 +118,20 @@ function setLed(led, red, green, flashRed, flashGreen)
 	local.sendNoteOn(1, led+96, red + ((1-flashRed) << 2) + (green << 4) + ((1-flashGreen << 6))); 
 }
 
-function setEncoderMode(top, id)
+function setEncoder(top, index, value)
 {
-	// TODO: Set Encoder Mode with Midi Message
+	var group = top ? "top":"side";
+	var note = ccNotes.encoders[group][index - 1];
+	local.sendCC(note[0], note[1], Math.round(value * 127));
+	// script.log("Send Midi " + note[0] + " " + note[1] + " " + Math.round(value*127));
+}
+
+// Set Encoder Display Mode with Midi Message
+function setEncoderMode(top, index, mode)
+{
+	var group = top ? "top":"side";
+	var note = ccNotes.encoders[group][index - 1];
+	local.sendCC(note[0], note[1]+8, mode);
 } 
 
 function setRGB(xId, yId)
@@ -278,13 +301,50 @@ function handleNote(channel, note, velocity)
 
 // Events
 
+function moduleValueChanged(value)
+{
+	if(value.getParent().name == "encoders")
+	{
+		if (value.name.substring(7,10) == "Top")
+		{
+			var index = parseInt(value.name.charAt(10));
+			setEncoder(true, index, value.get());
+
+		}
+		else if(value.name.substring(7,11) == "Side")
+		{
+			var index = parseInt(value.name.charAt(11));
+			setEncoder(false, index, value.get());
+		}
+	}
+}
+
 function moduleParameterChanged(param)
 {
-	if(param.getParent().name == "padColors")
+	script.log("Parameter Changed: " + param.name);
+	// Connection Midi Mode
+	if (param.name == "devices") setMidiMode();
+    if (param.name == "isConnected")
 	{
-		var id = parseInt(param.name.substring(3));
-		var val = param.getData();
-		setLed(id, val[0],val[1], 0, 0);
+        if (param.get() == 1)
+		{
+			setMidiMode();
+		} 
+    }
+
+	if(param.getParent().name == "encoderModes")
+	{
+		if (param.name.substring(7,10) == "Top")
+		{
+			var index = parseInt(param.name.charAt(10));
+			setEncoderMode(true, index, param.get());
+
+		}
+		else if(param.name.substring(7,11) == "Side")
+		{
+			var index = parseInt(param.name.charAt(11));
+			setEncoderMode(false, index, param.get());
+		}
 	}
 }
 
