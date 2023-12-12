@@ -1,12 +1,116 @@
-//Init sequence to send Sysex
+// Modes in Order Off - On, Pulsing, Blinking
+// const modes = [0, 1, 9, 14]
+// var modes = [90, 91, 99, 104];
+var modes = [0, 1, 11, 16];
 
-local.sendCC(1, 0, 0); //ResetLaunckey
-local.sendNoteOn(1, 0x0C, 0x7F);//Enable inControl
-local.sendSysex(0x7E, 0x7F, 6, 1); //This will send 4 bytes
- 
-local.sendCC(1, 0, 40); 
-local.sendCC(1, 7, 108);
- 
+// Colors defined by Ableton (APC Colors)
+var colors = [
+    [0, 0, 0],
+    [30, 30, 30],
+    [127, 127, 127],
+    [255, 255, 255],
+    [255, 76, 76],
+    [255, 0, 0],
+    [89, 0, 0],
+    [25, 0, 0],
+    [255, 189, 108],
+    [255, 84, 0],
+    [89, 29, 0],
+    [39, 27, 0],
+    [255, 255, 76],
+    [255, 255, 0],
+    [89, 89, 0],
+    [25, 25, 0],
+    [136, 255, 76],
+    [84, 255, 0],
+    [29, 89, 0],
+    [20, 43, 0],
+    [76, 255, 76],
+    [0, 255, 0],
+    [0, 89, 0],
+    [0, 25, 0],
+    [76, 255, 94],
+    [0, 255, 25],
+    [0, 89, 13],
+    [0, 25, 2],
+    [76, 255, 136],
+    [0, 255, 85],
+    [0, 89, 29],
+    [0, 31, 18],
+    [76, 255, 183],
+    [0, 255, 153],
+    [0, 89, 53],
+    [0, 25, 18],
+    [76, 195, 255],
+    [0, 169, 255],
+    [0, 65, 82],
+    [0, 16, 25],
+    [76, 136, 255],
+    [0, 85, 255],
+    [0, 29, 89],
+    [0, 8, 19],
+    [76, 76, 255],
+    [0, 0, 255],
+    [0, 0, 89],
+    [0, 0, 25],
+    [135, 76, 255],
+    [84, 0, 255],
+    [25, 0, 100],
+    [15, 0, 48],
+    [255, 76, 255],
+    [255, 0, 255],
+    [89, 0, 89],
+    [25, 0, 25],
+    [255, 76, 135],
+    [255, 0, 84],
+    [89, 0, 29],
+    [34, 0, 19],
+    [255, 21, 0],
+    [153, 53, 0],
+    [121, 81, 0],
+    [67, 100, 0],
+    [3, 57, 0],
+    [0, 87, 53],
+    [0, 84, 127],
+    [0, 0, 255],
+    [0, 69, 79],
+    [37, 0, 204],
+    [127, 127, 127],
+    [32, 32, 32],
+    [255, 0, 0],
+    [189, 255, 45],
+    [175, 237, 6],
+    [100, 255, 9],
+    [16, 139, 0],
+    [0, 255, 135],
+    [0, 169, 255],
+    [0, 42, 255],
+    [63, 0, 255],
+    [122, 0, 255],
+    [178, 26, 125],
+    [64, 33, 0],
+    [255, 74, 0],
+    [136, 225, 6],
+    [114, 255, 21],
+    [0, 255, 0],
+    [59, 255, 38],
+    [89, 255, 113],
+    [56, 138, 255],
+    [49, 81, 198],
+    [135, 127, 233],
+    [211, 29, 255],
+    [255, 0, 93],
+    [255, 127, 0],
+    [185, 176, 0],
+    [144, 255, 0],
+    [131, 93, 7],
+    [57, 43, 0],
+    [20, 76, 16],
+    [13, 80, 56],
+    [21, 21, 42],
+    [22, 32, 90]
+];
+
 // noted in [channel,note]
 var noteNotes = {
 	pads:
@@ -82,16 +186,18 @@ var ccNotes = {
 
 var noteValueObj = [[],[],[],[],[],[],[],[],[]];
 var ccValueObj = [[],[],[],[],[],[],[],[],[]];
-var colorParameterObj = [];
-var pulsingParameterObj = [];
+var colorParameterObj = [[],[],[],[],[]];
+var modeParameterObj = [[],[],[],[],[]];
 
-var pulsingSteps = 128;
-var pulsingTable = [0, 13, 26, 40, 53, 67, 80, 93, 107, 120, 134, 147, 161, 174, 187, 201, 214, 228, 255, 255, 252, 250, 247, 245, 243, 240, 238, 236, 233, 231, 229, 226, 224, 222, 219, 217, 215, 212, 210, 208, 205, 203, 201, 198, 196, 194, 191, 189, 187, 184, 182, 180, 177, 175, 173, 170, 168, 166, 163, 161, 159, 156, 154, 152, 149, 147, 145, 142, 140, 138, 135, 133, 131, 128, 126, 123, 121, 119, 116, 114, 112, 109, 107, 105, 102, 100, 98, 95, 93, 91, 88, 86, 84, 81, 79, 77, 74, 72, 70, 67, 65, 63, 60, 58, 56, 53, 51, 49, 46, 44, 42, 39, 37, 35, 32, 30, 28, 25, 23, 21, 18, 16, 14, 11, 9, 7, 4, 0];
-var pulsingRate = 1.0;
-var previousStep = -1;
 
 
 // User Functions 
+function refresh()
+{
+	setMidiMode();
+	resendMidi();
+}
+
 function setMidiMode()
 {
 	local.sendSysex(0x47, 0x7F, 0x29, 0x60, 0x00, 0x04, 0x41, 0x08, 0x02, 0x01);
@@ -111,12 +217,61 @@ function resendMidi()
 	}
 }
 
-// Functions
+//-----------------------------------------------------------
+//FIXME: Dimmed colors rather take like dimmed blue is closer to dimmed purple than dimmed blue
+function findClosestColor(rgbValue, colorArray) {
+    var closestIndex = 0;
+    // var closestDistance = Infinity;
+    var closestDistance = 10000;
 
-function setLed(led, red, green, flashRed, flashGreen)
-{
-	local.sendNoteOn(1, led+96, red + ((1-flashRed) << 2) + (green << 4) + ((1-flashGreen << 6))); 
+	// TODO: scale to nearest brightness level to avoid wrong color 
+    for (var i = 0; i < colorArray.length; i++) {
+        var color = colorArray[i];
+        var distance = Math.sqrt(
+            Math.pow((rgbValue[0] * 255) - color[0], 2) +
+            Math.pow((rgbValue[1] * 255) - color[1], 2) +
+            Math.pow((rgbValue[2] * 255) - color[2], 2)
+        );
+
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = i;
+        }
+    }
+
+	script.log("Given Color: ("+color[0]+","+color[1]+","+color[2]+") best color id is: " + closestIndex);
+    return closestIndex;
 }
+
+//-----------------------------------------------------------
+
+// Functions
+function setPad(row, column, color, mode)
+{
+	var channel = modes[mode];
+	var note = noteNotes.pads.main[row-1][column-1];
+	var value = findClosestColor(color, colors);
+
+	local.sendNoteOn(modes[1], note[1], value); // set color disregarding the mode
+
+	if (mode != 1) {
+		local.sendNoteOn(channel, note[1], 0);
+	}
+
+}
+
+function setPadColor(row, column, color)
+{
+	var mode = modeParameterObj[row-1][column-1].get();
+	setPad(row, column, color, mode);
+}
+
+function setPadMode(row, column, mode)
+{
+	var color = colorParameterObj[row-1][column-1].get();
+	setPad(row, column, color, mode);
+}
+
 
 function setEncoder(top, index, value)
 {
@@ -141,16 +296,9 @@ function setRGB(xId, yId)
 
 
 //Commands
-
-
-function setPadColor(pad, colors, flashing)
-{
-	setLed(pad, colors[0], colors[1], flashing, flashing);
-}
-
 function resetColors()
 {
-	for(var i=0;i<16;i++) setLed(0,0,0,0);
+	// TODO:
 }
 
 // Init
@@ -197,6 +345,12 @@ function init()
 			var name = "pad" + (row+1) + (column+1) + "";
 
 			noteValueObj[note[0]][note[1]] = local.values.pads.main.getChild(name);
+			if (row < 5 && column < 8)
+			{
+				// script.log("Test" + local.parameters.getChild("padLED").mode.getChild(name).name);
+				colorParameterObj[row][column] = local.parameters.getChild("padLED").color.getChild(name);
+				modeParameterObj[row][column] = local.parameters.getChild("padLED").mode.getChild(name); // FIXME: This would need to be implemented for all playbacks
+			}
 		}
 	}
 
@@ -321,16 +475,10 @@ function moduleValueChanged(value)
 
 function moduleParameterChanged(param)
 {
-	script.log("Parameter Changed: " + param.name);
-	// Connection Midi Mode
-	if (param.name == "devices") setMidiMode();
-    if (param.name == "isConnected")
-	{
-        if (param.get() == 1)
-		{
-			setMidiMode();
-		} 
-    }
+	script.log("Parameter Changed: " + param.name + " Parent: " + param.getParent().name + "GrandParent: " + param.getParent().getParent().name);
+	// Connection Refresh
+	if (param.name == "devices") refresh();
+    if (param.name == "isConnected") if (param.get() == 1) refresh();
 
 	if(param.getParent().name == "encoderModes")
 	{
@@ -345,6 +493,27 @@ function moduleParameterChanged(param)
 			var index = parseInt(param.name.charAt(11));
 			setEncoderMode(false, index, param.get());
 		}
+	}
+	else if (param.getParent().getParent().name == "padLED") 
+	{
+		if (param.getParent().name == "color")
+		{
+			var row = parseInt(param.name.charAt(3));
+			var column = parseInt(param.name.charAt(4));
+			script.log(row +" "+ column);
+			setPadColor(row, column, param.get());
+		}
+		else if (param.getParent().name == "mode")
+		{
+			var row = parseInt(param.name.charAt(3));
+			var column = parseInt(param.name.charAt(4));
+			script.log(row +" "+ column);
+			setPadMode(row, column, param.get());
+		}
+	}
+	if(param.getParent().name == "buttonLed")
+	{
+		script.log("Action not implemented yet");
 	}
 }
 
