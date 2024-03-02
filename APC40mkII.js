@@ -194,7 +194,9 @@ var modeParameterObj = [[],[],[],[],[]];
 // User Functions 
 function refresh()
 {
+	util.delayThreadMS(200);
 	setMidiMode();
+	util.delayThreadMS(200);
 	resendMidi();
 }
 
@@ -210,10 +212,19 @@ function resendMidi()
 	// Encoders
 	for(var i = 0; i < 8; i++)
 	{
-		setEncoder(true, (i+1), local.values.encoders.getChild("encoderTop"+(i+1)).get());
-		setEncoder(false, (i+1), local.values.encoders.getChild("encoderSide"+(i+1)).get());
+		sendEncoderValue(true, (i+1), local.values.encoders.getChild("encoderTop"+(i+1)).get());
+		sendEncoderValue(false, (i+1), local.values.encoders.getChild("encoderSide"+(i+1)).get());
 		setEncoderMode(true, (i+1), local.parameters.encoderModes.getChild("encoderTop"+(i+1)+"Mode").get());
-		setEncoderMode(false, (i+1), local.parameters.encoderModes.getChild("encoderSide"+(i+1)+"Mode").get());
+		sendEncoderMode(false, (i+1), local.parameters.encoderModes.getChild("encoderSide"+(i+1)+"Mode").get());
+	}
+
+	// Pad Colors
+	for (var row = 1; row <= 5; row++)
+	{
+		for(var column = 1; column <= 8; column++)
+		{
+			resendPad(row, column);
+		}
 	}
 }
 
@@ -239,15 +250,14 @@ function findClosestColor(rgbValue, colorArray) {
         }
     }
 
-	script.log("Given Color: ("+color[0]+","+color[1]+","+color[2]+") best color id is: " + closestIndex);
+	// script.log("Given Color: ("+color[0]+","+color[1]+","+color[2]+") best color id is: " + closestIndex);
     return closestIndex;
 }
 
 //-----------------------------------------------------------
 
 // Functions
-function setPad(row, column, color, mode)
-{
+function sendColorPad(row, column, color, mode) {
 	var channel = modes[mode];
 	var note = noteNotes.pads.main[row-1][column-1];
 	var value = findClosestColor(color, colors);
@@ -260,29 +270,55 @@ function setPad(row, column, color, mode)
 
 }
 
-function setPadColor(row, column, color)
-{
-	var mode = modeParameterObj[row-1][column-1].get();
-	setPad(row, column, color, mode);
+function sendDefaultPad(row, column, mode) {
+	var channel = modes[mode];
+	var note = noteNotes.pads.main[row-1][column-1];
+
+	// TODO: implement blinking logic
+	if (mode == 0) {
+		local.sendNoteOn(channel, note[1], 0);
+	}
+	else {
+		local.sendNoteOn(note[0], note[1], 127);
+	}
+
 }
 
-function setPadMode(row, column, mode)
+function sendPadColor(row, column, color)
+{
+	script.log("setPadColor");
+	var mode = modeParameterObj[row-1][column-1].get();
+	sendColorPad(row, column, color, mode);
+}
+
+function sendPadMode(row, column, mode)
+{
+	if (row <= 5) { // Color Pads
+		var color = colorParameterObj[row-1][column-1].get();
+		sendColorPad(row, column, color, mode);
+	}
+	else { // Default Pads
+		sendDefaultPad(row, column, mode);
+	}
+}
+
+function resendPad(row, column)
 {
 	var color = colorParameterObj[row-1][column-1].get();
-	setPad(row, column, color, mode);
+	var mode = modeParameterObj[row-1][column-1].get();
+	sendColorPad(row, column, color, mode);
 }
 
 
-function setEncoder(top, index, value)
+function sendEncoderValue(top, index, value)
 {
 	var group = top ? "top":"side";
 	var note = ccNotes.encoders[group][index - 1];
 	local.sendCC(note[0], note[1], Math.round(value * 127));
-	// script.log("Send Midi " + note[0] + " " + note[1] + " " + Math.round(value*127));
 }
 
 // Set Encoder Display Mode with Midi Message
-function setEncoderMode(top, index, mode)
+function sendEncoderMode(top, index, mode)
 {
 	var group = top ? "top":"side";
 	var note = ccNotes.encoders[group][index - 1];
@@ -336,7 +372,7 @@ function init()
 
 	// Note to Object Matrix
 	// ------- Pads ------
-	// -- Main Pads --
+	// --- Main Pads ---
 	for (var row = 0; row < 7; row++)
 	{
 		for(var column = 0; column < 9; column++)
@@ -345,7 +381,7 @@ function init()
 			var name = "pad" + (row+1) + (column+1) + "";
 
 			noteValueObj[note[0]][note[1]] = local.values.pads.main.getChild(name);
-			if (row < 5 && column < 8)
+			if (row < 5 && column < 9)
 			{
 				// script.log("Test" + local.parameters.getChild("padLED").mode.getChild(name).name);
 				colorParameterObj[row][column] = local.parameters.getChild("padLED").color.getChild(name);
@@ -384,9 +420,7 @@ function init()
 			var key = keys[i][k];
 			var note = noteNotes.buttons[group][key];
 
-			script.log(note[0] + note[1] + group + key);
 			noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(group).getChild(key);
-			// noteValueObj[note[0]][note[1]] = local.values.buttons[group][key];
 		}
 	}
 }
@@ -462,36 +496,61 @@ function moduleValueChanged(value)
 		if (value.name.substring(7,10) == "Top")
 		{
 			var index = parseInt(value.name.charAt(10));
-			setEncoder(true, index, value.get());
+			sendEncoderValue(true, index, value.get());
 
 		}
 		else if(value.name.substring(7,11) == "Side")
 		{
 			var index = parseInt(value.name.charAt(11));
-			setEncoder(false, index, value.get());
+			sendEncoderValue(false, index, value.get());
 		}
 	}
 }
 
+var midiDeviceOutLast;
+var refreshReady = false;
+var refreshTime;
 function moduleParameterChanged(param)
 {
-	script.log("Parameter Changed: " + param.name + " Parent: " + param.getParent().name + "GrandParent: " + param.getParent().getParent().name);
+	// script.log("Parameter Changed: " + param.name + " Parent: " + param.getParent().name + "GrandParent: " + param.getParent().getParent().name + "Value: " + param.get());
+
 	// Connection Refresh
-	if (param.name == "devices") refresh();
-    if (param.name == "isConnected") if (param.get() == 1) refresh();
+    // if ((param.name == "isConnected" && param.get()) || (param.name == "devices" && local.parameters.isConnected)) {
+    if ((param.name == "isConnected" && param.get())) {
+		// script.log(local.parameters.devices);
+		// var devices = local.parameters.devices;
+
+		// script.log(typeof(devices.midiDevices));
+	}
+
+	// connection refresh -> check midi out available
+	if (param.name == "devices") {
+		var midiOutDevice = param.get()[1];
+		if (param.get()[1] != midiDeviceOutLast) {
+			midiDeviceOutLast = midiOutDevice;
+
+			if (midiOutDevice) {
+				script.log("New Midi out Device detected");
+				// refreshReady = true;
+				// refreshTime = util.getTime();
+				// refresh();
+			}
+		}
+	}
+
 
 	if(param.getParent().name == "encoderModes")
 	{
 		if (param.name.substring(7,10) == "Top")
 		{
 			var index = parseInt(param.name.charAt(10));
-			setEncoderMode(true, index, param.get());
+			sendEncoderMode(true, index, param.get());
 
 		}
 		else if(param.name.substring(7,11) == "Side")
 		{
 			var index = parseInt(param.name.charAt(11));
-			setEncoderMode(false, index, param.get());
+			sendEncoderMode(false, index, param.get());
 		}
 	}
 	else if (param.getParent().getParent().name == "padLED") 
@@ -500,15 +559,14 @@ function moduleParameterChanged(param)
 		{
 			var row = parseInt(param.name.charAt(3));
 			var column = parseInt(param.name.charAt(4));
-			script.log(row +" "+ column);
-			setPadColor(row, column, param.get());
+			sendPadColor(row, column, param.get());
+			script.log("this");
 		}
 		else if (param.getParent().name == "mode")
 		{
 			var row = parseInt(param.name.charAt(3));
 			var column = parseInt(param.name.charAt(4));
-			script.log(row +" "+ column);
-			setPadMode(row, column, param.get());
+			sendPadMode(row, column, param.get());
 		}
 	}
 	if(param.getParent().name == "buttonLed")
@@ -517,6 +575,16 @@ function moduleParameterChanged(param)
 	}
 }
 
+function update(delta) {
+	/*
+	script.log(refreshReady ? "READY" : "not");
+	if (refreshReady && (refreshTime - util.getTime() > 2)) {
+		script.log("Refreshing device now...");
+		refreshReady = false;
+		refresh();
+	}
+	*/
+}
 
 function noteOnEvent(channel, note, velocity)
 {
@@ -537,4 +605,43 @@ function ccEvent(channel, number, value)
 function sysExEvent(data)
 {
 	script.log("Sysex Message received, "+data.length+" bytes :");
+}
+
+// Callbacks
+function setEncoderValue(top, index, value)
+{
+	if (top)
+	{
+		local.values.encoders.getChild("encoderTop" + index).set(value);
+	}
+	else
+	{
+		local.values.encoders.getChild("encoderSide" + index).set(value);
+	}
+}
+
+function setEncoderMode(top, index, mode)
+{
+	// let modeEnum = local.parameters.encoderModes.getChild
+	if (!(index && mode)) return;
+
+	script.log("Top: " + top + " Index: " + index + " Mode: " + mode);
+	if (top)
+	{
+		local.parameters.encoderModes.getChild("encoderTop" + index + "Mode").setData(mode);
+	}
+	else
+	{
+		local.parameters.encoderModes.getChild("encoderSide" + index + "Mode").setData(mode);
+	}
+}
+
+function setPadColor(row, column, color)
+{
+	colorParameterObj[row-1][column-1].set(color);
+}
+
+function setPadMode(row, column, mode)
+{
+	modeParameterObj[row-1][column-1].setData(mode);
 }
