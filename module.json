@@ -176,14 +176,90 @@
 				"Pad 5.7": { "type": "Color"},
 				"Pad 5.8": { "type": "Color"},
 				"Pad 5.9": { "type": "Color"}
+			},
+
+			"Fader Buttons":
+			{
+				"type":"Container",
+				"collapsed":"true",
+				
+				"Fader 1 Select": {"type":"Boolean"},
+				"Fader 1 AB": {"type":"Boolean"},
+				"Fader 1 Solo": {"type":"Boolean"},
+				"Fader 1 Record": {"type":"Boolean"},
+
+				"Fader 2 Select": {"type":"Boolean"},
+				"Fader 2 AB": {"type":"Boolean"},
+				"Fader 2 Solo": {"type":"Boolean"},
+				"Fader 2 Record": {"type":"Boolean"},
+
+				"Fader 3 Select": {"type":"Boolean"},
+				"Fader 3 AB": {"type":"Boolean"},
+				"Fader 3 Solo": {"type":"Boolean"},
+				"Fader 3 Record": {"type":"Boolean"},
+
+				"Fader 4 Select": {"type":"Boolean"},
+				"Fader 4 AB": {"type":"Boolean"},
+				"Fader 4 Solo": {"type":"Boolean"},
+				"Fader 4 Record": {"type":"Boolean"},
+
+				"Fader 5 Select": {"type":"Boolean"},
+				"Fader 5 AB": {"type":"Boolean"},
+				"Fader 5 Solo": {"type":"Boolean"},
+				"Fader 5 Record": {"type":"Boolean"},
+
+				"Fader 6 Select": {"type":"Boolean"},
+				"Fader 6 AB": {"type":"Boolean"},
+				"Fader 6 Solo": {"type":"Boolean"},
+				"Fader 6 Record": {"type":"Boolean"},
+
+				"Fader 7 Select": {"type":"Boolean"},
+				"Fader 7 AB": {"type":"Boolean"},
+				"Fader 7 Solo": {"type":"Boolean"},
+				"Fader 7 Record": {"type":"Boolean"},
+
+				"Fader 8 Select": {"type":"Boolean"},
+				"Fader 8 AB": {"type":"Boolean"},
+				"Fader 8 Solo": {"type":"Boolean"},
+				"Fader 8 Record": {"type":"Boolean"}
 			}
 		},
 		
 		"Button LED":
 		{
 			"type":"Container",
-			"collapsed":true,
-		}
+			"collapsed":"true",
+			"Top":
+			{
+				"type":"Container",
+				"collapsed":"true",
+			
+				"Pan": {"type":"Boolean"},
+				"Sends": {"type":"Boolean"},
+				"User": {"type":"Boolean"},
+
+				"Play": {"type":"Boolean"},
+				"Record": {"type":"Boolean"},
+				"Session": {"type":"Boolean"},
+
+				"Metronome": {"type":"Boolean"},
+			},
+
+			"Encoders":
+			{
+				"type":"Container",
+				"collapsed":"true",
+
+				"1 Device Prev": {"type":"Boolean"},
+				"2 Device Next": {"type":"Boolean"},
+				"3 Bank Prev": {"type":"Boolean"},
+				"4 Bank Next": {"type":"Boolean"},
+				"5 Dev. On/Off": {"type":"Boolean", "shortName":"5DevOnOff"},
+				"6 Dev. Lock": {"type":"Boolean"},
+				"7 Clip/Dev. View": {"type":"Boolean", "shortName":"7ClipDevView"},
+				"8 Detail View": {"type":"Boolean"},
+				"Bank": {"type":"Boolean"}
+			}		}
 	},
 
 	"defaults":
@@ -500,16 +576,6 @@
 			}
 		},
 
-		"Reset Pad Colors":
-		{
-			"menu":"",
-			"callback":"resetColors"
-		},
-		"Refresh Device":
-		{
-			"menu":"",
-			"callback":"refresh"
-		},
 		"Set Encoder Value":
 		{
 			"menu":"",
@@ -567,6 +633,87 @@
 					}
 				}
 			}
-		}
+		},
+
+		"Set Fader Pad":
+		{
+			"menu":"",
+			"callback":"setFaderPad",
+			"parameters":
+			{
+				"Fader":
+				{
+					"type":"Integer",
+					"min": 1,
+					"max": 8
+				},
+
+				"Button":
+				{
+					"type":"Enum",
+					"options":
+					{
+						"Select": 0,
+						"AB": 1,
+						"Solo": 2,
+						"Record": 3
+					}
+				},
+
+				"State":
+				{
+					"type":"Boolean"
+				}
+			}
+		},
+
+		"Set Button LED":
+		{
+			"menu":"",
+			"callback":"setButton",
+			"parameters":
+			{
+				"Button":
+				{
+					"type":"Enum",
+					"options":
+					{
+						"Pan": 0,
+						"Sends": 1,
+						"User": 2,
+						"Play": 3,
+						"Record": 4,
+						"Session": 5,
+						"Metronome": 6,
+						"1 Device Prev": 7,
+						"2 Device Next": 8,
+						"3 Bank Prev": 9,
+						"4 Bank Next": 10,
+						"5 Dev. On/Off": 11,
+						"6 Dev. Lock": 12,
+						"7 Clip/Dev. View": 13,
+						"8 Detail View": 14,
+						"Bank": 15
+					}
+				},
+
+				"State":
+				{
+					"type":"Boolean"
+				}
+			}
+		},
+
+		"Reset Pad Colors":
+		{
+			"menu":"",
+			"callback":"resetColors"
+		},
+
+		"Refresh Device":
+		{
+			"menu":"",
+			"callback":"refresh"
+		},
 	}
 }

@@ -1,6 +1,4 @@
 // Modes in Order Off - On, Pulsing, Blinking
-// const modes = [0, 1, 9, 14]
-// var modes = [90, 91, 99, 104];
 var modes = [0, 1, 11, 16];
 
 // Colors defined by Ableton (APC Colors)
@@ -113,8 +111,7 @@ var colors = [
 
 // noted in [channel,note]
 var noteNotes = {
-	pads:
-	{
+	pads: {
 		main: [
 			[[1,32], [1,33], [1,34], [1,35], [1,36], [1,37], [1,38], [1,39], [1,82]],
 			[[1,24], [1,25], [1,26], [1,27], [1,28], [1,29], [1,30], [1,31], [1,83]],
@@ -135,8 +132,7 @@ var noteNotes = {
 			[[8,50], [8,66], [8,49], [8,48]]
 		]
 	},
-	buttons:
-	{
+	buttons: {
 		top: {
 			"pan": [1, 87],
 			"sends": [1,88],
@@ -184,47 +180,58 @@ var ccNotes = {
 	faders: [[1,7], [2,7], [3,7], [4,7], [5,7], [6,7], [7,7], [8,7], [1,14], [1,15]]
 };
 
+var buttonLedKeys = ["pan","sends","user","play","record","session","metronome", "1DevicePrev", "2DeviceNext", "3BankPrev", "4BankNext", "5DevOnOff", "6DevLock", "7ClipDevView", "8DetailView", "bank"];
+
+
 var noteValueObj = [[],[],[],[],[],[],[],[],[]];
 var ccValueObj = [[],[],[],[],[],[],[],[],[]];
 var colorParameterObj = [[],[],[],[],[]];
 var modeParameterObj = [[],[],[],[],[]];
+var faderPadParameterObj = [[],[],[],[],[],[],[],[]];
+var buttonParameterObj = {};
 
 
 
-// User Functions 
-function refresh()
-{
+function refresh() {
 	util.delayThreadMS(200);
 	setMidiMode();
 	util.delayThreadMS(200);
 	resendMidi();
 }
 
-function setMidiMode()
-{
+function setMidiMode() {
 	local.sendSysex(0x47, 0x7F, 0x29, 0x60, 0x00, 0x04, 0x41, 0x08, 0x02, 0x01);
 	script.log("Set Midi Mode with Sysex Message");
 }
 
-// Resent Values
-function resendMidi()
-{
+function resendMidi() {
 	// Encoders
-	for(var i = 0; i < 8; i++)
-	{
+	for(var i = 0; i < 8; i++) {
 		sendEncoderValue(true, (i+1), local.values.encoders.getChild("encoderTop"+(i+1)).get());
 		sendEncoderValue(false, (i+1), local.values.encoders.getChild("encoderSide"+(i+1)).get());
-		setEncoderMode(true, (i+1), local.parameters.encoderModes.getChild("encoderTop"+(i+1)+"Mode").get());
+		sendEncoderMode(true, (i+1), local.parameters.encoderModes.getChild("encoderTop"+(i+1)+"Mode").get());
 		sendEncoderMode(false, (i+1), local.parameters.encoderModes.getChild("encoderSide"+(i+1)+"Mode").get());
 	}
 
 	// Pad Colors
-	for (var row = 1; row <= 5; row++)
-	{
-		for(var column = 1; column <= 8; column++)
-		{
+	for (var row = 1; row <= 5; row++) {
+		for(var column = 1; column <= 8; column++) {
 			resendPad(row, column);
 		}
+	}
+
+	// Fader Pads
+	for (var fader = 0; fader < 8; fader ++) {
+		for (var button = 0; button < 4; button ++) {
+			state = faderPadParameterObj[fader][button].get();
+			sendFaderPad(fader + 1, button + 1, state);
+		}
+	}
+
+	// Buttons
+	for (var i = 0; i < buttonLedKeys.length; i++) {
+		var obj = buttonParameterObj[buttonLedKeys[i]];
+		sendButton(obj.getParent().name, obj.name, obj.get());
 	}
 }
 
@@ -256,7 +263,7 @@ function findClosestColor(rgbValue, colorArray) {
 
 //-----------------------------------------------------------
 
-// Functions
+// ----- Midi Functions -----
 function sendColorPad(row, column, color, mode) {
 	var channel = modes[mode];
 	var note = noteNotes.pads.main[row-1][column-1];
@@ -284,15 +291,13 @@ function sendDefaultPad(row, column, mode) {
 
 }
 
-function sendPadColor(row, column, color)
-{
+function sendPadColor(row, column, color) {
 	script.log("setPadColor");
 	var mode = modeParameterObj[row-1][column-1].get();
 	sendColorPad(row, column, color, mode);
 }
 
-function sendPadMode(row, column, mode)
-{
+function sendPadMode(row, column, mode) {
 	if (row <= 5) { // Color Pads
 		var color = colorParameterObj[row-1][column-1].get();
 		sendColorPad(row, column, color, mode);
@@ -302,52 +307,56 @@ function sendPadMode(row, column, mode)
 	}
 }
 
-function resendPad(row, column)
-{
+function resendPad(row, column) {
 	var color = colorParameterObj[row-1][column-1].get();
 	var mode = modeParameterObj[row-1][column-1].get();
 	sendColorPad(row, column, color, mode);
 }
 
+function sendFaderPad(fader, button, state) {
+	var note = noteNotes.pads.faders[fader-1][button-1];
 
-function sendEncoderValue(top, index, value)
-{
+	local.sendNoteOn(note[0], note[1], state ? 127 : 0);
+}
+
+function sendButton(parent, name, state) {
+	var note = noteNotes.buttons[parent][name];
+
+	local.sendNoteOn(note[0], note[1], state ? 127 : 0);
+}
+
+function sendEncoderValue(top, index, value) {
 	var group = top ? "top":"side";
 	var note = ccNotes.encoders[group][index - 1];
 	local.sendCC(note[0], note[1], Math.round(value * 127));
 }
 
 // Set Encoder Display Mode with Midi Message
-function sendEncoderMode(top, index, mode)
-{
+function sendEncoderMode(top, index, mode) {
 	var group = top ? "top":"side";
 	var note = ccNotes.encoders[group][index - 1];
 	local.sendCC(note[0], note[1]+8, mode);
 } 
 
-function setRGB(xId, yId)
-{
-	// TODO: Send Sysex Message with RGB Data
+function setRGB(xId, yId) {
+	// TODO: Send Sysex Message with RGB Data (doesn't seem to be possible)
 }
 
-
-//Commands
-function resetColors()
-{
+function resetColors() {
 	// TODO:
 }
 
-// Init
-function init()
-{
+// ----- Chataigne Functions -----
+function init() {
 	// Generate CC to Object Matrix
+	// Generate Note to Object Matrix
+	// Generate Object Matrices
+
 	// ------- Faders -------
-	for (var i = 0; i <= 9; i++)
-	{
+	for (var i = 0; i <= 9; i++) {
 		var note = ccNotes.faders[i];
 		var name = "fader" + (i+1) + "";
-		if (i == 9)
-		{
+		if (i == 9){
 			name = "faderAb";
 		}
 		
@@ -355,8 +364,7 @@ function init()
 	}
 
 	// ------- Encoders --------
-	for (var i = 0; i < 8; i++)
-	{
+	for (var i = 0; i < 8; i++) {
 		var noteTop = ccNotes.encoders.top[i];
 		var noteSide = ccNotes.encoders.side[i];
 		var nameTop = "encoderTop" + (i+1) + "";
@@ -365,24 +373,20 @@ function init()
 		ccValueObj[noteTop[0]][noteTop[1]] = local.values.encoders.getChild(nameTop);
 		ccValueObj[noteSide[0]][noteSide[1]] = local.values.encoders.getChild(nameSide);
 	}
-	// Special Encoders
+
+	// ---- Special Encoders ----
 	ccValueObj[ccNotes.encoders.cue[0]][ccNotes.encoders.cue[1]] = local.values.encoders.getChild("encoderCueLevel");
 	ccValueObj[ccNotes.encoders.tempo[0]][ccNotes.encoders.tempo[1]] = local.values.encoders.getChild("encoderTempo");
 
 
-	// Note to Object Matrix
-	// ------- Pads ------
-	// --- Main Pads ---
-	for (var row = 0; row < 7; row++)
-	{
-		for(var column = 0; column < 9; column++)
-		{
+	// ------ Main Pads ------
+	for (var row = 0; row < 7; row++) {
+		for(var column = 0; column < 9; column++){
 			var note = noteNotes.pads.main[row][column];
 			var name = "pad" + (row+1) + (column+1) + "";
 
 			noteValueObj[note[0]][note[1]] = local.values.pads.main.getChild(name);
-			if (row < 5 && column < 9)
-			{
+			if (row < 5 && column < 9) {
 				// script.log("Test" + local.parameters.getChild("padLED").mode.getChild(name).name);
 				colorParameterObj[row][column] = local.parameters.getChild("padLED").color.getChild(name);
 				modeParameterObj[row][column] = local.parameters.getChild("padLED").mode.getChild(name); // FIXME: This would need to be implemented for all playbacks
@@ -390,16 +394,15 @@ function init()
 		}
 	}
 
-	// -- Fader Pads --
+	// --- Fader Pads ---
 	var faderButtonNames = ["Select","Ab","Solo","Record"];
-	for (var fader = 0; fader < 8; fader++)
-	{
-		for (var button = 0; button < 4; button++)
-		{
+	for (var fader = 0; fader < 8; fader++) {
+		for (var button = 0; button < 4; button++) {
 			var note = noteNotes.pads.faders[fader][button];
 			var name = "fader" + (fader + 1) + faderButtonNames[button];
 
 			noteValueObj[note[0]][note[1]] = local.values.pads.faderButtons.getChild(name);
+			faderPadParameterObj[fader][button] = local.parameters.padLED.faderButtons.getChild(name);
 		}
 	}
 
@@ -412,116 +415,48 @@ function init()
 		["up","down","left","right"]
 	];
 
-	for (var i = 0; i < groups.length; i++)
-	{
+	for (var i = 0; i < groups.length; i++) {
 		var group = groups[i];
-		for (var k = 0; k < keys[i].length; k++)
-		{
+		for (var k = 0; k < keys[i].length; k++){
 			var key = keys[i][k];
 			var note = noteNotes.buttons[group][key];
 
 			noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(group).getChild(key);
-		}
-	}
-}
-/*
-	for (var i = 0; i < noteNotes.buttons.length; i++)
-	{
-		let groupKeys = noteNotes.buttons.keys();
-		let groupKey = groupKeys[i];
-		for (var j = 0; j < noteNotes.buttons[groupKey].length; j++);
-		{
-			let key = noteNotes.buttons[groupKey].keys()[j];
-			let note = noteNotes.buttons[key];
-			noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(groupKey).getChild(key);
-		}
-	}
 
-	for (let group in noteNotes.buttons)
-	{
-		for (let key in noteNotes.buttons[group])	
-		{
-			if (noteNotes.buttons.hasOwnProperty(key))
-			{
-				let note = noteNotes.buttons[key]
-				noteValueObj[note[0]][note[1]] = local.values.buttons.getChild(group).getChild(name);
+			var parent = local.parameters.buttonLED.getChild(group);
+			if (parent && parent.getChild(key)) { // only if button has LED
+				buttonParameterObj[key] = parent.getChild(key);
 			}
 		}
 	}
-*/
-
-// Handle Midi Inputs
-function handleCC(channel, number, value)
-{
-	var obj = ccValueObj[channel][number];
-	if (!!obj)
-	{
-		// script.log("Mapping for this Midi Note found");
-		if(obj.name == "encoderCueLevel" || obj.name == "encoderTempo")
-		{
-			if (value > 63) value = value - 128;
-			obj.set(value);
-		}
-		else
-		{
-			obj.set((value/127));
-		}
-	}
-	else
-	{
-		script.log("No Mapping for this Midi CC found");
-	}
 }
 
-function handleNote(channel, note, velocity)
-{
-	var obj = noteValueObj[channel][note];
-	if (!!obj)
-	{
-		obj.set((velocity == 127));
+// ------ Chataigne Events ------
+var midiDeviceOutLast;
+var refreshReady = false;
+
+function moduleValueChanged(value) {
+	// Refreshs midi on first incoming message (because default handler is not workign)
+	if (refreshReady == true) {
+		refreshReady = false;
+		refresh();
 	}
-	else
-	{
-		script.log("No Mapping for this Midi Note found");
-	}
 
-}
-
-// Events
-
-function moduleValueChanged(value)
-{
-	if(value.getParent().name == "encoders")
-	{
-		if (value.name.substring(7,10) == "Top")
-		{
+	if(value.getParent().name == "encoders") {
+		if (value.name.substring(7,10) == "Top") {
 			var index = parseInt(value.name.charAt(10));
 			sendEncoderValue(true, index, value.get());
 
 		}
-		else if(value.name.substring(7,11) == "Side")
-		{
+		else if(value.name.substring(7,11) == "Side") {
 			var index = parseInt(value.name.charAt(11));
 			sendEncoderValue(false, index, value.get());
 		}
 	}
 }
 
-var midiDeviceOutLast;
-var refreshReady = false;
-var refreshTime;
-function moduleParameterChanged(param)
-{
-	// script.log("Parameter Changed: " + param.name + " Parent: " + param.getParent().name + "GrandParent: " + param.getParent().getParent().name + "Value: " + param.get());
-
-	// Connection Refresh
-    // if ((param.name == "isConnected" && param.get()) || (param.name == "devices" && local.parameters.isConnected)) {
-    if ((param.name == "isConnected" && param.get())) {
-		// script.log(local.parameters.devices);
-		// var devices = local.parameters.devices;
-
-		// script.log(typeof(devices.midiDevices));
-	}
+function moduleParameterChanged(param) {
+	// script.log("Parameter Changed: " + param.name + " Parent: " + param.getParent().name + " GrandParent: " + param.getParent().getParent().name + " Value: " + param.get());
 
 	// connection refresh -> check midi out available
 	if (param.name == "devices") {
@@ -531,117 +466,129 @@ function moduleParameterChanged(param)
 
 			if (midiOutDevice) {
 				script.log("New Midi out Device detected");
-				// refreshReady = true;
-				// refreshTime = util.getTime();
+				refreshReady = true;
 				// refresh();
 			}
 		}
 	}
 
 
-	if(param.getParent().name == "encoderModes")
-	{
-		if (param.name.substring(7,10) == "Top")
-		{
+	if(param.getParent().name == "encoderModes") {
+		if (param.name.substring(7,10) == "Top") {
 			var index = parseInt(param.name.charAt(10));
 			sendEncoderMode(true, index, param.get());
 
 		}
-		else if(param.name.substring(7,11) == "Side")
-		{
+		else if(param.name.substring(7,11) == "Side") {
 			var index = parseInt(param.name.charAt(11));
 			sendEncoderMode(false, index, param.get());
 		}
 	}
-	else if (param.getParent().getParent().name == "padLED") 
-	{
-		if (param.getParent().name == "color")
-		{
+
+	else if (param.getParent().getParent().name == "padLED") {
+		if (param.getParent().name == "color") {
 			var row = parseInt(param.name.charAt(3));
 			var column = parseInt(param.name.charAt(4));
 			sendPadColor(row, column, param.get());
 			script.log("this");
 		}
-		else if (param.getParent().name == "mode")
-		{
+
+		else if (param.getParent().name == "mode") {
 			var row = parseInt(param.name.charAt(3));
 			var column = parseInt(param.name.charAt(4));
 			sendPadMode(row, column, param.get());
 		}
+
+		else if (param.getParent().name == "faderButtons") {
+			var fader = parseInt(param.name.charAt(5));
+			var action = param.name.substring(6, 8);
+			var button = action === "Se" ? 1 :
+						 action === "AB" ? 2 :
+						 action === "So" ? 3 :
+						 action === "Re" ? 4 : 0;
+
+			sendFaderPad(fader, button, param.get());
+		}
 	}
-	if(param.getParent().name == "buttonLed")
-	{
-		script.log("Action not implemented yet");
+
+	else if(param.getParent().getParent().name == "buttonLED"){
+		sendButton(param.getParent().name, param.name, param.get());
 	}
 }
 
 function update(delta) {
-	/*
-	script.log(refreshReady ? "READY" : "not");
-	if (refreshReady && (refreshTime - util.getTime() > 2)) {
-		script.log("Refreshing device now...");
-		refreshReady = false;
-		refresh();
+}
+
+
+// ------ Midi Handlers ------
+function handleCC(channel, number, value) {
+	var obj = ccValueObj[channel][number];
+	if (!!obj) {
+		if(obj.name == "encoderCueLevel" || obj.name == "encoderTempo"){
+			if (value > 63) value = value - 128;
+			obj.set(value);
+		}
+		else {
+			obj.set((value/127));
+		}
 	}
-	*/
+	else{
+		script.log("No Mapping for this Midi CC found");
+	}
 }
 
-function noteOnEvent(channel, note, velocity)
-{
+function handleNote(channel, note, velocity) {
+	var obj = noteValueObj[channel][note];
+	if (!!obj) {
+		obj.set((velocity == 127));
+	}
+	else {
+		script.log("No Mapping for this Midi Note found");
+	}
+
+}
+
+
+// ------ Midi Events ------
+function noteOnEvent(channel, note, velocity) {
 	handleNote(channel, note, velocity);
 }
 
 
-function noteOffEvent(channel, note , velocity)
-{
+function noteOffEvent(channel, note , velocity) {
 	handleNote(channel, note, velocity);
 }
 
-function ccEvent(channel, number, value)
-{
+function ccEvent(channel, number, value) {
 	handleCC(channel, number, value);
 }
 
-function sysExEvent(data)
-{
+function sysExEvent(data) {
 	script.log("Sysex Message received, "+data.length+" bytes :");
 }
 
-// Callbacks
-function setEncoderValue(top, index, value)
-{
-	if (top)
-	{
-		local.values.encoders.getChild("encoderTop" + index).set(value);
-	}
-	else
-	{
-		local.values.encoders.getChild("encoderSide" + index).set(value);
-	}
+// ------ User Functions ------
+function setEncoderValue(top, index, value) {
+	local.values.encoders.getChild((top ? "encoderTop" : "encoderSide") + index).set(value);
 }
 
-function setEncoderMode(top, index, mode)
-{
-	// let modeEnum = local.parameters.encoderModes.getChild
-	if (!(index && mode)) return;
-
-	script.log("Top: " + top + " Index: " + index + " Mode: " + mode);
-	if (top)
-	{
-		local.parameters.encoderModes.getChild("encoderTop" + index + "Mode").setData(mode);
-	}
-	else
-	{
-		local.parameters.encoderModes.getChild("encoderSide" + index + "Mode").setData(mode);
-	}
+function setEncoderMode(top, index, mode) {
+	local.parameters.encoderModes.getChild((top ? "encoderTop" : "encoderSide")+ index + "Mode").setData(mode);
 }
 
-function setPadColor(row, column, color)
-{
+function setPadColor(row, column, color) {
 	colorParameterObj[row-1][column-1].set(color);
 }
 
-function setPadMode(row, column, mode)
-{
+function setPadMode(row, column, mode) {
 	modeParameterObj[row-1][column-1].setData(mode);
+}
+
+function setButton(index, state) {
+	var key = buttonLedKeys[index];
+	buttonParameterObj[key].set(state);
+}
+
+function setFaderPad(fader, button, state) {
+	faderPadParameterObj[fader-1][button].set(state);
 }
