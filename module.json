@@ -710,7 +710,7 @@
 			"callback":"resetColors"
 		},
 
-		"Refresh Device":
+		"Resync Device":
 		{
 			"menu":"",
 			"callback":"refresh"
